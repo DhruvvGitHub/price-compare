@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { searchBigBasket } from "./services/bigbasket.service";
+import { searchJioMart } from "./services/jiomart.service.js";
+import blinkitRoutes from "./routes/blinkit.route.js";
 
 const app = express();
 app.use(cors());
@@ -11,33 +12,25 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/api/bigbasket/search", async (req, res) => {
+
+app.get("/api/jiomart/search", async (req, res) => {
   const { q, pincode } = req.query;
 
   if (!q) {
-    return res.status(400).json({
-      error: "Query is required",
-    });
+    return res.status(400).json({ error: "Query is required" });
   }
 
-  if (!isBigBasketServiceable(pincode)) {
-    return res.json({
-      platform: "bigbasket",
-      pincode,
-      available: false,
-      results: [],
-    });
-  }
-
-  const results = await searchBigBasket(q);
+  const results = await searchJioMart(q);
 
   res.json({
-    platform: "bigBasket",
-    pincode,
-    available: true,
+    platform: "jiomart",
+    pincode: pincode || null,
     count: results.length,
-    results,
+    results
   });
 });
+
+app.use("/api/blinkit", blinkitRoutes);
+
 
 app.listen(5000, () => console.log("Server running on port 5000"));
